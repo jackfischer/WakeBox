@@ -26,12 +26,44 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Insert code here to tear down your application
     }
     
+    
     @IBAction func pickerChange(sender: NSDatePicker) {
         dateClock.dateValue = sender.dateValue
     }
     
     @IBAction func clockChange(sender: NSDatePicker) {
         datePicker.dateValue = sender.dateValue
+    }
+   
+    /*
+    func getHourFromDatePicker(datePicker:UIDatePicker) -> String
+    {
+        let date = datePicker.date
+        
+        let calendar = NSCalendar.currentCalendar()
+        let components = calendar.components([NSCalendarUnit.Hour, NSCalendarUnit.Minute] , fromDate: date)
+        
+        return "\(components.hour):\(components.minute)"
+    }
+*/
+    
+    @IBAction func setWakeBox(sender: NSButton) {
+        //Create gregorian calendar and formatter
+        let calendar: NSCalendar = NSCalendar(identifier: NSCalendarIdentifierGregorian)!
+        //let formatter: NSDateFormatter = NSDateFormatter()
+        
+        //extract hour/minute from ui
+        let components: NSDateComponents = calendar.components([NSCalendarUnit.Hour, NSCalendarUnit.Minute] , fromDate: datePicker.dateValue)
+        print(components)
+        
+        //calculate next_date in GMT
+        let next_date: NSDate = calendar.nextDateAfterDate(NSDate(), matchingComponents: components, options: NSCalendarOptions.MatchNextTime)!
+        
+        /*print date
+        print(calendar.components([NSCalendarUnit.Month, NSCalendarUnit.Day, NSCalendarUnit.Hour, NSCalendarUnit.Minute], fromDate: next_date))
+        */
+        let interval: NSTimeInterval = next_date.timeIntervalSinceNow
+        print(interval)
     }
     
     @IBAction func slider(sender: NSSlider) {
