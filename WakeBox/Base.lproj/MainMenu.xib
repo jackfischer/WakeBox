@@ -17,6 +17,8 @@
                 <outlet property="dateClock" destination="KGT-d9-4zB" id="9fN-p3-gzf"/>
                 <outlet property="datePicker" destination="RQO-oP-fFV" id="75T-Yi-0pr"/>
                 <outlet property="sliderOut" destination="hH4-nv-fTO" id="Q85-cV-6Ib"/>
+                <outlet property="speedBlurb" destination="Bg3-p6-igF" id="x5B-HX-86o"/>
+                <outlet property="speedOut" destination="XLq-3m-cJH" id="yft-9N-fuY"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
             </connections>
         </customObject>
@@ -687,9 +689,9 @@
                         </connections>
                     </slider>
                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Bg3-p6-igF">
-                        <rect key="frame" x="151" y="169" width="87" height="17"/>
+                        <rect key="frame" x="151" y="159" width="87" height="34"/>
                         <animations/>
-                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Wake Speed" id="eDE-Kf-awL">
+                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Wake Speed (15 minutes)" id="eDE-Kf-awL">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -727,10 +729,13 @@
                             <action selector="clockChange:" target="Voe-Tx-rLC" id="3iE-CH-H2X"/>
                         </connections>
                     </datePicker>
-                    <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XLq-3m-cJH">
-                        <rect key="frame" x="241" y="167" width="96" height="21"/>
+                    <slider toolTip="Minutes" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XLq-3m-cJH">
+                        <rect key="frame" x="241" y="162" width="96" height="26"/>
                         <animations/>
-                        <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="Tcd-fZ-hD1"/>
+                        <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="30" doubleValue="15" tickMarkPosition="above" numberOfTickMarks="15" sliderType="linear" id="Tcd-fZ-hD1"/>
+                        <connections>
+                            <action selector="speedChange:" target="Voe-Tx-rLC" id="F5h-G6-gCs"/>
+                        </connections>
                     </slider>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Hfz-3N-OPa">
                         <rect key="frame" x="194" y="91" width="120" height="32"/>
