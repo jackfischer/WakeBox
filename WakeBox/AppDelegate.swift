@@ -69,7 +69,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @objc func timerFire(timer: NSTimer) {
         print("in timerFire")
-        setBrightnessLevel(1.0)
+        
+        let qualityOfServiceClass = QOS_CLASS_BACKGROUND
+        let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
+        dispatch_async(backgroundQueue, {
+            print("This is run on the background queue")
+            
+            let totalSeconds: Float = Float(self.speedOut.integerValue * 60)
+            for (var i = 0; i < Int(totalSeconds); i++){
+                sleep(1)
+                let brightness: Float = Float(i)/totalSeconds
+                self.setBrightnessLevel(brightness)
+                print("Setting brightness to \(brightness)")
+            }
+        })
     }
     
     @IBAction func slider(sender: NSSlider) {
