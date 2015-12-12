@@ -42,7 +42,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @IBAction func setWakeBox(sender: NSButton) {
         //Create gregorian calendar and formatter
-        let calendar: NSCalendar = NSCalendar(identifier: NSCalendarIdentifierGregorian)!
+        let calendar: NSCalendar = NSCalendar.currentCalendar()
         //let formatter: NSDateFormatter = NSDateFormatter()
         
         //extract hour/minute from ui
@@ -70,25 +70,47 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func timerFire(timer: NSTimer) {
         print("in timerFire")
         
-        let qualityOfServiceClass = QOS_CLASS_BACKGROUND
+        var iteration = 0
+        let end = Int(self.speedOut.integerValue * 60)
+        var currentLevel: Float = 0
+        let step = Float(self.speedOut.integerValue * 60)
+        
+        let queue = dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)
+        let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue)
+        dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC, NSEC_PER_SEC / 10)
+        dispatch_source_set_event_handler(timer) {
+            currentLevel += step
+            self.setBrightnessLevel(currentLevel)
+            
+            iteration += 1
+            if iteration == end {
+                dispatch_source_cancel(timer)
+            }
+        }
+        
+        dispatch_resume(timer)
+        
+        /*
+        let qualityOfServiceClass = QOS_CLASS_USER_INTERACTIVE
         let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
         dispatch_async(backgroundQueue, {
             print("This is run on the background queue")
             
             let totalSeconds: Float = Float(self.speedOut.integerValue * 60)
             for (var i = 0; i < Int(totalSeconds); i++){
+                //TODO: use a timer to fire every second or whatever to increase brightness instad of loop
                 sleep(1)
                 let brightness: Float = Float(i)/totalSeconds
                 self.setBrightnessLevel(brightness)
                 print("Setting brightness to \(brightness)")
             }
         })
+        */
     }
     
     @IBAction func slider(sender: NSSlider) {
         //var x: Double
-        var x: Float
-        x = sender.floatValue / 100
+        let x: Float = sender.floatValue / 100
         print(x)
         setBrightnessLevel(x)
     }
