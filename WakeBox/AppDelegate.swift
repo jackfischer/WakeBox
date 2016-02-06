@@ -18,6 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var datePicker: NSDatePicker!
     @IBOutlet var dateClock: NSDatePicker!
     @IBOutlet var speedBlurb: NSTextField!
+    let caff_task = NSTask()
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         // Insert code here to initialize your application
@@ -26,6 +27,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationWillTerminate(aNotification: NSNotification) {
         // Insert code here to tear down your application
+        caff_task.terminate()
     }
     
     
@@ -65,6 +67,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         //Turn down brightness and brightness slider
         setBrightnessLevel(0.0)
         sliderOut.floatValue = 0.0 //Adjust brightness slider
+        
+        //launch caffeinate
+        caff_task.launchPath = "/usr/bin/caffeinate"
+        caff_task.launch()
     }
     
     @objc func timerFire(timer: NSTimer) {
@@ -85,6 +91,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             iteration += 1
             if iteration == end {
                 dispatch_source_cancel(timer)
+                self.caff_task.terminate()
+                print("Everything done.")
             }
         }
         
