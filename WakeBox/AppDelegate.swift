@@ -18,51 +18,51 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var datePicker: NSDatePicker!
     @IBOutlet var dateClock: NSDatePicker!
     @IBOutlet var speedBlurb: NSTextField!
-    let caff_task = NSTask()
+    let caff_task = Task()
     
-    func applicationDidFinishLaunching(aNotification: NSNotification) {
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
         print("Up")
     }
     
-    func applicationWillTerminate(aNotification: NSNotification) {
+    func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
         caff_task.terminate()
     }
     
     
-    @IBAction func pickerChange(sender: NSDatePicker) {
+    @IBAction func pickerChange(_ sender: NSDatePicker) {
         dateClock.dateValue = sender.dateValue
     }
-    @IBAction func clockChange(sender: NSDatePicker) {
+    @IBAction func clockChange(_ sender: NSDatePicker) {
         datePicker.dateValue = sender.dateValue
     }
-    @IBAction func speedChange(sender: NSSlider) {
+    @IBAction func speedChange(_ sender: NSSlider) {
         speedBlurb.stringValue = "Wake Speed (\(speedOut.integerValue) minutes)"
     }
    
     
-    @IBAction func setWakeBox(sender: NSButton) {
+    @IBAction func setWakeBox(_ sender: NSButton) {
         //Create gregorian calendar and formatter
-        let calendar: NSCalendar = NSCalendar.currentCalendar()
+        let calendar: Calendar = Calendar.current
         //let formatter: NSDateFormatter = NSDateFormatter()
         
         //extract hour/minute from ui
-        let components: NSDateComponents = calendar.components([NSCalendarUnit.Hour, NSCalendarUnit.Minute] , fromDate: datePicker.dateValue)
+        let components: DateComponents = calendar.components([Calendar.init.hour, Calendar.Unit.minute] , from: datePicker.dateValue)
         //print(components)
         
         //calculate next_date in GMT
-        var next_date: NSDate = calendar.nextDateAfterDate(NSDate(), matchingComponents: components, options: NSCalendarOptions.MatchNextTime)!
+        var next_date: Date = calendar.nextDate(after: Date(), matching: components, matchingPolicy: Calendar.Options.matchNextTime)!
         
         //print(calendar.components([NSCalendarUnit.Month, NSCalendarUnit.Day, NSCalendarUnit.Hour, NSCalendarUnit.Minute], fromDate: next_date))
 
         //subtract wakeup speed from next_date, so time fires at beginning of increase in brightness
-        next_date = next_date.dateByAddingTimeInterval(NSTimeInterval.init(-60*speedOut.integerValue))
+        next_date = next_date.addingTimeInterval(TimeInterval.init(-60*speedOut.integerValue))
         
         //set up NSTimeInterval and NSTimer
-        let interval: NSTimeInterval = next_date.timeIntervalSinceNow
+        let interval: TimeInterval = next_date.timeIntervalSinceNow
         print(interval)
-        NSTimer.scheduledTimerWithTimeInterval(interval, target: self, selector: Selector("timerFire:"), userInfo: nil, repeats: false)
+        Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(AppDelegate.timerFire(_:)), userInfo: nil, repeats: false)
         
         //Turn down brightness and brightness slider
         setBrightnessLevel(0.0)
@@ -73,7 +73,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         caff_task.launch()
     }
     
-    @objc func timerFire(timer: NSTimer) {
+    @objc func timerFire(_ timer: Timer) {
         print("in timerFire")
         
         var iteration = 0
@@ -81,22 +81,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         var currentLevel: Float = 0
         let step = Float(self.speedOut.integerValue * 60)
         
-        let queue = dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)
-        let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue)
-        dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC, NSEC_PER_SEC / 10)
-        dispatch_source_set_event_handler(timer) {
+        let queue = DispatchQueue.global(qos: DispatchQoS.QoSClass.userInteractive)
+        let timer = DispatchSource.makeTimerSource(flags: DispatchSource.TimerFlags(rawValue: UInt(0)), queue: queue)
+        timer.setTimer(start: DispatchTime.now(), interval: 1 * NSEC_PER_SEC, leeway: NSEC_PER_SEC / 10)
+        timer.setEventHandler {
             currentLevel += step
             self.setBrightnessLevel(currentLevel)
             
             iteration += 1
             if iteration == end {
-                dispatch_source_cancel(timer)
+                timer.cancel()
                 self.caff_task.terminate()
                 print("Everything done.")
             }
         }
         
-        dispatch_resume(timer)
+        timer.resume()
         
         /*
         let qualityOfServiceClass = QOS_CLASS_USER_INTERACTIVE
@@ -116,7 +116,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         */
     }
     
-    @IBAction func slider(sender: NSSlider) {
+    @IBAction func slider(_ sender: NSSlider) {
         //var x: Double
         let x: Float = sender.floatValue / 100
         print(x)
@@ -124,7 +124,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
 
-    func setBrightnessLevel(level: Float) {
+    func setBrightnessLevel(_ level: Float) {
         //Change screen brightness
         var iterator: io_iterator_t = 0
         if IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching("IODisplayConnect"), &iterator) == kIOReturnSuccess {
